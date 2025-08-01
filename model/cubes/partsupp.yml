@@ -1,0 +1,61 @@
+cubes:
+  - name: partsupp
+    sql_table: "\"TPCH_SF100\".\"PARTSUPP\""
+
+    joins: 
+      - name: part
+        sql: "{CUBE.partkey} = {part.partkey}"
+        relationship: many_to_one
+      - name: supplier
+        sql: "{CUBE.suppkey} = {supplier.suppkey}"
+        relationship: many_to_one
+
+    dimensions:
+## keys 
+      - name: suppkey
+        sql: "{CUBE}.\"PS_SUPPKEY\""
+        type: number
+        primary_key: true
+
+      - name: partkey
+        sql: "{CUBE}.\"PS_PARTKEY\""
+        type: number
+
+## facts 
+      - name: supply_cost
+        sql: "{CUBE}.\"PS_SUPPLYCOST\""
+        type: number
+
+      - name: available_quantity
+        sql: "{CUBE}.\"PS_AVAILQTY\""
+        type: number
+
+## details 
+      - name: comment
+        sql: "{CUBE}.\"PS_COMMENT\""
+        type: string
+
+    measures:
+      - name: count
+        type: count
+      
+      - name: total_supply_cost
+        type: sum
+        sql: "{CUBE.supply_cost}"
+        
+      - name: total_available_quantity
+        type: sum
+        sql: "{CUBE.available_quantity}"
+        
+      - name: avg_supply_cost
+        type: avg
+        sql: "{CUBE.supply_cost}"
+        
+      - name: total_inventory_value
+        type: number
+        sql: "{CUBE.supply_cost} * {CUBE.available_quantity}"
+
+    pre_aggregations:
+      # Pre-aggregation definitions go here.
+      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
+

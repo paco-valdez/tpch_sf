@@ -1,0 +1,43 @@
+views:
+  - name: supplier_sales_analysis
+    cubes:
+      - join_path: lineitem
+        includes:
+          - supplier_sales_contribution
+          - total_quantity
+          - total_revenue
+          - total_profit
+          - avg_item_price
+          - avg_discount_rate
+          - count
+          - suppkey
+          - partkey
+          - ship_date
+          - quantity
+          - extended_price
+          - discount
+      - join_path: lineitem.supplier
+        includes:
+          - supplier_name
+          - supplier_account_balance
+          - total_account_balance
+          - avg_account_balance
+      - join_path: lineitem.part
+        includes:
+          - part_name
+          - part_type
+          - part_brand
+          - manufacturer
+          - retail_price
+      - join_path: lineitem.supplier.nation
+        includes:
+          - nation_name
+      - join_path: lineitem.orders
+        includes:
+          - order_date
+          - total_price
+          - order_status
+      - join_path: lineitem.orders.customer
+        includes:
+          - customer_name
+          - market_segment

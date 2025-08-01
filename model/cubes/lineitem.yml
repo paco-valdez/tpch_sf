@@ -1,0 +1,180 @@
+cubes:
+  - name: lineitem
+    # sql_table: "\"TPCH_SF100\".\"LINEITEM\""
+    sql: >
+      SELECT *
+      FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM
+      WHERE L_LINESTATUS = 'O' AND L_RETURNFLAG = 'N'
+
+    joins: 
+      - name: orders    
+        sql: "{CUBE.orderkey} = {orders.orderkey}"
+        relationship: many_to_one
+      - name: supplier
+        sql: "{CUBE.suppkey} = {supplier.suppkey}"
+        relationship: many_to_one
+      - name: part
+        sql: "{CUBE.partkey} = {part.partkey}"
+        relationship: many_to_one
+
+    dimensions:
+## keys 
+      - name: lineitemkey
+        sql: "CONCAT({CUBE.orderkey},{CUBE.line_number})"
+        type: string
+        primary_key: true
+
+      - name: orderkey
+        sql: "{CUBE}.\"L_ORDERKEY\""
+        type: number
+        primary_key: true
+      
+      - name: suppkey
+        sql: "{CUBE}.\"L_SUPPKEY\""
+        type: number
+
+      - name: partkey
+        sql: "{CUBE}.\"L_PARTKEY\""
+        type: number
+
+## dates 
+      - name: ship_date
+        sql: "{CUBE}.\"L_SHIPDATE\""
+        type: time
+
+      - name: commit_date
+        sql: "{CUBE}.\"L_COMMITDATE\""
+        type: time
+
+      - name: receipt_date
+        sql: "{CUBE}.\"L_RECEIPTDATE\""
+        type: time
+
+## facts 
+      - name: line_number
+        sql: "{CUBE}.\"L_LINENUMBER\""
+        type: number
+
+      - name: quantity
+        sql: "{CUBE}.\"L_QUANTITY\""
+        type: number
+
+      - name: extended_price
+        sql: "{CUBE}.\"L_EXTENDEDPRICE\""
+        type: number
+
+      - name: discount
+        sql: "{CUBE}.\"L_DISCOUNT\""
+        type: number
+
+      - name: tax
+        sql: "{CUBE}.\"L_TAX\""
+        type: number
+
+## details 
+      - name: return_flag
+        sql: "{CUBE}.\"L_RETURNFLAG\""
+        type: string
+
+      - name: line_status
+        sql: "{CUBE}.\"L_LINESTATUS\""
+        type: string
+
+      - name: ship_mode
+        sql: "{CUBE}.\"L_SHIPMODE\""
+        type: string
+
+      - name: comment
+        sql: "{CUBE}.\"L_COMMENT\""
+        type: string
+
+      - name: ship_instruct
+        sql: "{CUBE}.\"L_SHIPINSTRUCT\""
+        type: string
+
+    measures:
+      - name: count
+        type: count
+      
+      - name: total_quantity        
+        type: sum
+        sql: "{CUBE.quantity}"
+      
+      - name: total_price
+        type: sum
+        sql: "{CUBE.extended_price}"
+      
+      - name: total_discount
+        type: sum
+        sql: "{CUBE.discount}"
+      
+      - name: total_tax
+        type: sum
+        sql: "{CUBE.tax}"
+      
+      - name: total_revenue
+        type: number
+        sql: "{CUBE.total_price} - {CUBE.total_discount}" 
+
+      - name: total_profit
+        type: number
+        sql: "{CUBE.total_revenue} - {CUBE.total_tax}"
+      
+      - name: supplier_sales_contribution
+        type: number
+        sql: "{CUBE.extended_price} * (1 - {CUBE.discount})"
+        
+      - name: avg_item_price
+        type: avg
+        sql: "{CUBE.extended_price}"
+        
+      - name: avg_discount_rate
+        type: avg
+        sql: "{CUBE.discount}" 
+
+    pre_aggregations:
+      - name: item_rollup
+        measures:
+          - CUBE.total_discount
+          - CUBE.total_price
+          - CUBE.total_profit
+          - CUBE.total_quantity
+          - CUBE.total_revenue
+          - CUBE.count
+        dimensions:
+          - CUBE.ship_mode
+          - customer.market_segment
+          - part.part_type
+          - nation.nation_name
+          - region.region_name
+          # These dims aren't good candidates for pre-agg given their cardinality
+          # - supplier.supplier_name
+          # - customer.customer_name
+          # - part.part_name
+
+        allow_non_strict_date_range_match: true
+        time_dimension: ship_date
+        granularity: month
+        partition_granularity: year
+        refresh_key:
+          every: 365 day
+        ## specifying a slice of data for testing
+        build_range_start:
+          sql: SELECT TO_TIMESTAMP('1992-01-01T00:00:00.000')
+        build_range_end:
+          sql: SELECT TO_TIMESTAMP('1998-12-31T23:59:59.999')
+        indexes:
+          - name: part_type
+            columns:
+              - part.part_type
+              - region.region_name
+              - customer.market_segment
+              - CUBE.ship_mode
+              - "{'lineitem__ship_date_month'}"
+        #   - name: supplier_name
+        #     columns: 
+        #       - supplier.supplier_name
+        #   - name: part_type
+        #     columns: 
+        #       - part.part_type
+

@@ -1,0 +1,69 @@
+cubes:
+  - name: supplier
+    # access_policy:
+    #   - role: 'default'
+    #     member_level:
+    #       includes:
+    #         - supplier_name
+    #         - nationkey
+    #         - count
+      # - role: '*'
+      #   member_level:
+      #     includes: []
+          
+    sql_table: "\"TPCH_SF100\".\"SUPPLIER\""
+
+    joins: 
+      - name: nation
+        sql: "{CUBE.nationkey} = {nation.nationkey}"
+        relationship: many_to_one
+
+    dimensions:
+## keys 
+      - name: suppkey
+        sql: "{CUBE}.\"S_SUPPKEY\""
+        type: number
+        primary_key: true
+      
+      - name: nationkey
+        sql: "{CUBE}.\"S_NATIONKEY\""
+        type: number
+
+## facts 
+      - name: supplier_account_balance
+        sql: "{CUBE}.\"S_ACCTBAL\""
+        type: number
+
+## details 
+      - name: comment
+        sql: "{CUBE}.\"S_COMMENT\""
+        type: string
+
+      - name: supplier_phone
+        sql: "{CUBE}.\"S_PHONE\""
+        type: string
+
+      - name: supplier_name
+        sql: "{CUBE}.\"S_NAME\""
+        type: string
+
+      - name: supplier_address
+        sql: "{CUBE}.\"S_ADDRESS\""
+        type: string
+
+    measures:
+      - name: count
+        type: count
+      
+      - name: total_account_balance
+        type: sum
+        sql: "{CUBE.supplier_account_balance}"
+        
+      - name: avg_account_balance
+        type: avg
+        sql: "{CUBE.supplier_account_balance}"
+
+    pre_aggregations:
+      # Pre-aggregation definitions go here.
+      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
+

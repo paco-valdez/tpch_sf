@@ -1,0 +1,62 @@
+cubes:
+  - name: orders
+    sql: >
+      SELECT *
+      FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.ORDERS
+      WHERE O_ORDERSTATUS = 'O'
+
+    joins:
+      - name: customer
+        sql: "{CUBE.custkey} = {customer.custkey}"
+        relationship: many_to_one
+
+    dimensions:
+## keys
+      - name: orderkey
+        sql: "{CUBE}.\"O_ORDERKEY\""
+        type: number
+        primary_key: true
+      
+      - name: custkey
+        sql: "{CUBE}.\"O_CUSTKEY\""
+        type: number
+
+## dates      
+      - name: order_date
+        sql: "{CUBE}.\"O_ORDERDATE\""
+        type: time
+
+## facts
+      - name: total_price
+        sql: "{CUBE}.\"O_TOTALPRICE\""
+        type: number
+
+## details 
+      - name: ship_priority
+        sql: "{CUBE}.\"O_SHIPPRIORITY\""
+        type: number
+
+      - name: comment
+        sql: "{CUBE}.\"O_COMMENT\""
+        type: string
+
+      - name: order_priority
+        sql: "{CUBE}.\"O_ORDERPRIORITY\""
+        type: string
+
+      - name: order_status
+        sql: "{CUBE}.\"O_ORDERSTATUS\""
+        type: string
+
+      - name: clerk
+        sql: "{CUBE}.\"O_CLERK\""
+        type: string
+
+    measures:
+      - name: count
+        type: count
+
+    pre_aggregations:
+      # Pre-aggregation definitions go here.
+      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
+

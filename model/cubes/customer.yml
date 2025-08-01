@@ -1,0 +1,54 @@
+cubes:
+  - name: customer
+    sql_table: "\"TPCH_SF100\".\"CUSTOMER\""
+
+    joins: 
+      - name: nation
+        sql: "{CUBE.nationkey} = {nation.nationkey}"
+        relationship: many_to_one
+
+    dimensions:
+## keys
+      - name: custkey
+        sql: "{CUBE}.\"C_CUSTKEY\""
+        type: number
+        primary_key: true
+      
+      - name: nationkey
+        sql: "{CUBE}.\"C_NATIONKEY\""
+        type: number
+
+## facts
+      - name: customer_account_balance
+        sql: "{CUBE}.\"C_ACCTBAL\""
+        type: number
+
+## details
+      - name: customer_address
+        sql: "{CUBE}.\"C_ADDRESS\""
+        type: string
+
+      - name: customer_name
+        sql: "{CUBE}.\"C_NAME\""
+        type: string
+
+      - name: customer_phone
+        sql: "{CUBE}.\"C_PHONE\""
+        type: string
+
+      - name: comment
+        sql: "{CUBE}.\"C_COMMENT\""
+        type: string
+
+      - name: market_segment
+        sql: "{CUBE}.\"C_MKTSEGMENT\""
+        type: string
+
+    measures:
+      - name: count
+        type: count
+
+    pre_aggregations:
+      # Pre-aggregation definitions go here.
+      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
+

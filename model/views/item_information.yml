@@ -1,0 +1,46 @@
+views:
+  - name: item_information
+    cubes:
+      - join_path: lineitem
+        includes:
+          - ship_date
+          - line_status
+          - return_flag
+          - quantity
+          - extended_price
+          - ship_mode
+          - ship_instruct
+          - total_quantity
+          - total_discount
+          - total_price
+          - total_profit
+          - total_revenue
+          - count
+
+      - join_path: lineitem.supplier
+        includes: 
+          - supplier_name
+      
+      - join_path: lineitem.part
+        includes: 
+          - part_name
+          - part_type 
+
+      - join_path: lineitem.orders
+        includes:
+          - order_status
+      
+      - join_path: lineitem.orders.customer
+        includes: 
+          - customer_name
+          - market_segment
+
+      - join_path: lineitem.orders.customer.nation
+        includes: 
+          - nation_name
+
+      - join_path: lineitem.orders.customer.nation.region
+        includes: 
+          - region_name
+
+
