@@ -95,6 +95,9 @@ cubes:
     measures:
       - name: count
         type: count
+        drill_members:
+          - ship_mode
+          - line_status
       
       - name: total_quantity        
         type: sum
