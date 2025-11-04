@@ -133,7 +133,7 @@ cubes:
         sql: "{CUBE.discount}" 
 
     pre_aggregations:
-      - name: item_rollup
+      - name: item_rollup1
         measures:
           - CUBE.total_discount
           - CUBE.total_price
@@ -146,7 +146,7 @@ cubes:
           - customer.market_segment
           - part.part_type
           - nation.nation_name
-          - region.region_name
+          # - region.region_name
           # These dims aren't good candidates for pre-agg given their cardinality
           # - supplier.supplier_name
           # - customer.customer_name
