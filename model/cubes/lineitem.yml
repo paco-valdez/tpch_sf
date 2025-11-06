@@ -163,14 +163,14 @@ cubes:
           sql: SELECT TO_TIMESTAMP('1992-01-01T00:00:00.000')
         build_range_end:
           sql: SELECT TO_TIMESTAMP('1998-12-31T23:59:59.999')
-        indexes:
-          - name: part_type
-            columns:
-              - part.part_type
-              - region.region_name
-              - customer.market_segment
-              - CUBE.ship_mode
-              - "{'lineitem__ship_date_month'}"
+        # indexes:
+        #   - name: part_type
+        #     columns:
+        #       - part.part_type
+        #       - region.region_name
+        #       - customer.market_segment
+        #       - CUBE.ship_mode
+        #       - "{'lineitem__ship_date_month'}"
         #   - name: supplier_name
         #     columns: 
         #       - supplier.supplier_name
