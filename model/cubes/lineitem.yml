@@ -146,6 +146,10 @@ cubes:
         sql: "{CUBE.completed_count} / NULLIF({CUBE.count}, 0)"
         format: percent
 
+      - name: avg_retail_price
+        type: number
+        sql: "{lineitem.part.retail_price} / NULLIF({CUBE.count}, 0)"
+
     pre_aggregations:
       - name: item_rollup
         measures:
@@ -196,6 +200,7 @@ cubes:
           - lineitem.part.part_name
           - lineitem.part.part_brand
           - lineitem.part.manufacturer
+          - lineitem.part.retail_price
         rollups:
           - part.part_rollup
           - CUBE.item_rollup

@@ -58,6 +58,7 @@ cubes:
           - part.partkey
           - part.part_name
           - part.part_brand
+          - part.retail_price
           - part.manufacturer
         refresh_key:
           every: 365 day
