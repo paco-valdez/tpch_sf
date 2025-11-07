@@ -131,26 +131,37 @@ cubes:
       - name: avg_discount_rate
         type: avg
         sql: "{CUBE.discount}" 
+      
+      - name: avg_discounted_amount
+        type: number
+        sql: "{CUBE.total_discount} / {CUBE.count}" 
+
+      - name: completed_count
+        type: count
+        filters:
+          - sql: "{CUBE.orders.order_status} = 'O'"
+
+      - name: completed_percentage
+        type: number
+        sql: "{CUBE.completed_count} / NULLIF({CUBE.count}, 0)"
+        format: percent
 
     pre_aggregations:
       - name: item_rollup
         measures:
-          - CUBE.total_discount
-          - CUBE.total_price
-          - CUBE.total_profit
-          - CUBE.total_quantity
-          - CUBE.total_revenue
-          - CUBE.count
+          - lineitem.total_discount
+          - lineitem.total_quantity
+          - lineitem.total_price
+          - lineitem.total_tax
+          - lineitem.completed_count
+          - lineitem.count
         dimensions:
-          - CUBE.ship_mode
-          - customer.market_segment
-          - part.part_type
-          - nation.nation_name
-          - region.region_name
-          # These dims aren't good candidates for pre-agg given their cardinality
-          # - supplier.supplier_name
-          # - customer.customer_name
-          # - part.part_name
+          - lineitem.ship_mode
+          - lineitem.orders.customer.market_segment
+          - lineitem.supplier.nation.nation_name
+          - lineitem.supplier.nation.region.region_name
+          # Rollupjoin
+          - lineitem.partkey
 
         allow_non_strict_date_range_match: true
         time_dimension: ship_date
@@ -160,21 +171,32 @@ cubes:
           every: 365 day
         ## specifying a slice of data for testing
         build_range_start:
-          sql: SELECT TO_TIMESTAMP('1992-01-01T00:00:00.000')
+          sql: SELECT TO_TIMESTAMP('1994-01-01T00:00:00.000')
         build_range_end:
           sql: SELECT TO_TIMESTAMP('1998-12-31T23:59:59.999')
         indexes:
           - name: part_type
             columns:
-              - part.part_type
-              - region.region_name
-              - customer.market_segment
-              - CUBE.ship_mode
-              - "{'lineitem__ship_date_month'}"
-        #   - name: supplier_name
-        #     columns: 
-        #       - supplier.supplier_name
-        #   - name: part_type
-        #     columns: 
-        #       - part.part_type
+              - lineitem.partkey
+
+      - name: item_rollup_join
+        type: rollup_join
+        measures:
+          - lineitem.total_discount
+          - lineitem.total_quantity
+          - lineitem.total_price
+          - lineitem.total_tax
+          - lineitem.completed_count
+          - lineitem.count
+        dimensions:
+          - lineitem.ship_mode
+          - lineitem.orders.customer.market_segment
+          - lineitem.supplier.nation.nation_name
+          - lineitem.supplier.nation.region.region_name
+          - lineitem.part.part_name
+          - lineitem.part.part_brand
+          - lineitem.part.manufacturer
+        rollups:
+          - part.part_rollup
+          - CUBE.item_rollup
 

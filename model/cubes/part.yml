@@ -50,6 +50,14 @@ cubes:
         type: count
 
     pre_aggregations:
-      # Pre-aggregation definitions go here.
-      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
-
+      - name: part_rollup
+        measures:
+          - CUBE.count
+        dimensions:
+          # Rollupjoin
+          - part.partkey
+          - part.part_name
+          - part.part_brand
+          - part.manufacturer
+        refresh_key:
+          every: 365 day
