@@ -152,9 +152,14 @@ def check_sql_auth(req: Dict[str, Any], user_name: str, password: str) -> Dict[s
 @config('query_rewrite')
 def query_rewrite(query: dict, ctx: dict) -> dict:
   context = ctx['securityContext']
-  print(context)
+  print(f"Query Rewrite context: {context}")
   return query
 
 @config('context_to_roles')
 def context_to_roles(ctx: dict) -> list[str]:
-  return ctx['securityContext'].get('roles', ['default'])
+  context = ctx['securityContext']
+  cube_cloud_roles = context.get('cubeCloud', {}).get('roles', [])
+  ctx_roles = context.get('roles', ['default'])
+  all_roles = list(set(cube_cloud_roles + ctx_roles))
+  print(f"roles: {all_roles}")
+  return all_roles

@@ -1,5 +1,24 @@
 views:
   - name: item_information
+    access_policy:
+      - role : "default"
+        member_level:
+          includes: "*"  # Full column access
+        row_level: 
+          filters:
+            - member : item_information.return_flag
+              operator: notSet
+              # values : ["False"]  # No rows accessible by this role alone 
+      # Designation roles provide NO column access but control row access
+      - role : "private"
+        member_level:
+          includes: []  # No column access from this role alone
+        row_level: 
+          filters:
+            - or:
+              - member: item_information.line_status
+                operator: set
+
     cubes:
       - join_path: lineitem
         includes:
