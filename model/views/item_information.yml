@@ -1,7 +1,7 @@
 views:
   - name: item_information
     access_policy:
-      - role : "default"
+      - role : "Developer"
         member_level:
           includes: "*"  # Full column access
         row_level: 
