@@ -18,6 +18,8 @@ views:
             - or:
               - member: item_information.line_status
                 operator: set
+              - member: item_information.ship_mode
+                operator: set
 
     cubes:
       - join_path: lineitem
